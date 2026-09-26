@@ -1,0 +1,331 @@
+{
+  "id": "encomendas",
+  "title": "Encomendas",
+  "subtitle": "Doces feitos para celebrar",
+  "products": [
+    {
+      "id": "docinhos-tradicionais",
+      "category": "Para celebrar",
+      "title": "Docinhos tradicionais",
+      "description": "Os clássicos que deixam qualquer comemoração mais gostosa. Escolha seus sabores favoritos para montar a sua encomenda.",
+      "tag": "Feitos à mão",
+      "options": [
+        {
+          "name": "35 unidades",
+          "price": 50
+        },
+        {
+          "name": "70 unidades",
+          "price": 100
+        },
+        {
+          "name": "100 unidades",
+          "price": 120
+        }
+      ],
+      "flavors": [
+        "Brigadeiro",
+        "Beijinho",
+        "Prestígio",
+        "Dois amores",
+        "Doce de leite",
+        "Morango"
+      ],
+      "images": [
+        {
+          "src": "products/docinhos.webp",
+          "alt": "Caixa de docinhos tradicionais em forminhas coloridas"
+        }
+      ],
+      "soldOut": false,
+      "flavorSelection": "multiple"
+    },
+    {
+      "id": "docinhos-gourmet",
+      "category": "Um carinho a mais",
+      "title": "Docinhos gourmet",
+      "description": "Docinhos caprichados com combinações especiais. Misture sabores e monte uma seleção para a sua festa.",
+      "tag": "Especiais",
+      "options": [
+        {
+          "name": "35 unidades",
+          "price": 63
+        },
+        {
+          "name": "70 unidades",
+          "price": 120
+        },
+        {
+          "name": "100 unidades",
+          "price": 170
+        }
+      ],
+      "flavors": [
+        "Morango com Nutella",
+        "Ninho com Nutella",
+        "Brigadeiro nobre",
+        "Coco queimado",
+        "Ferrero Rocher",
+        "Confete"
+      ],
+      "images": [
+        {
+          "src": "products/docinhos-gourmet.jpg",
+          "alt": "Caixa de docinhos gourmet variados"
+        }
+      ],
+      "soldOut": true,
+      "flavorSelection": "multiple"
+    },
+    {
+      "id": "baby-brownie",
+      "category": "Pequenos prazeres",
+      "title": "Baby brownie",
+      "description": "Quadradinhos de brownie para adoçar a mesa da festa. Encomenda mínima de 35 unidades.",
+      "tag": "Mínimo 35 un.",
+      "options": [
+        {
+          "name": "35 unidades",
+          "price": 70
+        },
+        {
+          "name": "70 unidades",
+          "price": 140
+        },
+        {
+          "name": "100 unidades",
+          "price": 180
+        }
+      ],
+      "flavors": ["Brigadeiro", "Ninho", "Doce de leite"],
+      "images": [
+        {
+          "src": "products/baby-brownie.jpg",
+          "alt": "Bandeja de baby brownies cobertos com docinhos variados"
+        }
+      ],
+      "soldOut": false,
+      "flavorSelection": "multiple"
+    },
+    {
+      "id": "naked-individual",
+      "category": "Para dividir",
+      "title": "Naked brownie · individual",
+      "description": "Brownie com 500 g, feito para servir até 3 pessoas. Uma sobremesa gostosa para dividir sem precisar esperar uma festa.",
+      "tag": "500 g · serve até 3",
+      "options": [
+        {
+          "name": "Brownie individual",
+          "price": 50
+        }
+      ],
+      "flavors": ["Brigadeiro", "Ninho", "Morango"],
+      "images": [
+        {
+          "src": "products/naked-brownie.jpg",
+          "alt": "Naked brownie individual com camadas de brownie e recheio"
+        }
+      ],
+      "soldOut": false,
+      "flavorSelection": "single"
+    },
+    {
+      "id": "caixa-comemoracao",
+      "category": "Um presente completo",
+      "title": "Caixa comemoração",
+      "description": "Um naked brownie acompanhado de 16 brigadeiros com os sabores que você escolher. Para comemorar com muito carinho.",
+      "tag": "Naked brownie + 16 brigadeiros",
+      "options": [
+        {
+          "name": "Caixa comemoração",
+          "price": 80
+        }
+      ],
+      "images": [
+        {
+          "src": "products/caixa-comemoracao.jpg",
+          "alt": "Caixa comemoração com naked brownie e brigadeiros"
+        }
+      ],
+      "soldOut": false
+    },
+    {
+      "id": "festa-na-caixa",
+      "category": "Uma festa em uma caixa",
+      "title": "Festa na caixa",
+      "description": "Naked brownie, brigadeiros, 20 salgados e duas Coca-Colas para uma comemoração gostosa sem complicação.",
+      "tag": "Brownie + doces + salgados + bebidas",
+      "options": [
+        {
+          "name": "Festa na caixa",
+          "price": 120
+        }
+      ],
+      "images": [
+        {
+          "src": "products/festa-caixa.jpg",
+          "alt": "Festa na caixa com brownie, docinhos, salgados e refrigerantes"
+        }
+      ],
+      "soldOut": false
+    },
+    {
+      "id": "naked-14cm",
+      "category": "A sobremesa da festa",
+      "title": "Naked brownie · 14 cm",
+      "description": "Com aproximadamente 1,5 kg, esse naked brownie serve cerca de 10 pessoas. Escolha seu recheio favorito.",
+      "tag": "14 cm · serve até 10",
+      "options": [
+        {
+          "name": "Naked brownie 14 cm",
+          "price": 110
+        }
+      ],
+      "images": [
+        {
+          "src": "products/naked-brownie.jpg",
+          "alt": "Naked brownie de chocolate com cobertura cremosa"
+        }
+      ],
+      "soldOut": false,
+      "flavors": [
+        "Ninho com Nutella",
+        "Ferrero Rocher",
+        "Doce de leite",
+        "Brigadeiro",
+        "Morango",
+        "Ninho"
+      ],
+      "flavorSelection": "single"
+    },
+    {
+      "id": "naked-familia",
+      "category": "Para reunir todo mundo",
+      "title": "Naked brownie família",
+      "description": "Uma versão generosa para comemorar junto. Cerca de 20 cm de diâmetro e peso aproximado de 2,6 kg.",
+      "tag": "Tamanho família · 20 cm",
+      "options": [
+        {
+          "name": "Naked brownie tamanho família",
+          "price": 180
+        }
+      ],
+      "images": [
+        {
+          "src": "products/naked-brownie-familia.jpg",
+          "alt": "Naked brownie tamanho família decorado com brigadeiros"
+        }
+      ],
+      "soldOut": false,
+      "flavors": [
+        "Doce de leite",
+        "Ninho com Nutella",
+        "Ferrero Rocher",
+        "Morango",
+        "Ninho",
+        "Brigadeiro"
+      ],
+      "flavorSelection": "single"
+    },
+    {
+      "id": "brownie-banhado",
+      "category": "Presenteie com doçura",
+      "title": "Brownie banhado",
+      "description": "Brownie 4 × 4 cm, banhado e embalado com carinho. Escolha unidades avulsas ou cento para a sua comemoração.",
+      "tag": "Chocolate de verdade",
+      "options": [
+        {
+          "name": "Unidade",
+          "price": 4.5
+        },
+        {
+          "name": "Cento",
+          "price": 420
+        }
+      ],
+      "flavors": ["Brigadeiro", "Ninho", "Doce de leite"],
+      "images": [
+        {
+          "src": "products/chocobrownie.jpg",
+          "alt": "Brownie coberto com chocolate, embalado para presente"
+        },
+        {
+          "src": "products/brownie-casado.png",
+          "alt": "Brownies embalados individualmente com laços de cetim"
+        }
+      ],
+      "soldOut": false,
+      "flavorSelection": "multiple"
+    },
+    {
+      "id": "bolo-festivo",
+      "category": "O centro da festa",
+      "title": "Bolo festivo",
+      "description": "Bolo de 15 cm, cerca de 1,8 kg, pensado para servir aproximadamente 12 pessoas. Escolha o recheio que combina com a comemoração.",
+      "tag": "15 cm · serve 12",
+      "options": [
+        {
+          "name": "Bolo festivo 15 cm",
+          "price": 145
+        }
+      ],
+      "images": [
+        {
+          "src": "products/bolo-festivo.jpg",
+          "alt": "Bolo festivo decorado com brigadeiros e laço vermelho"
+        }
+      ],
+      "soldOut": false,
+      "flavors": ["Doce de leite", "Brigadeiro", "Morango", "Ninho"],
+      "flavorSelection": "single"
+    },
+    {
+      "id": "kit-festa",
+      "category": "A festa mais fácil",
+      "title": "Kit festa",
+      "description": "Uma combinação especial para comemorar: bolo de 15 cm e 35 docinhos. Escolha docinhos tradicionais ou gourmet.",
+      "tag": "Bolo + 35 docinhos",
+      "options": [
+        {
+          "name": "Docinhos tradicionais",
+          "price": 90
+        },
+        {
+          "name": "Docinhos gourmet",
+          "price": 135
+        }
+      ],
+      "images": [
+        {
+          "src": "products/kit-festa.jpg",
+          "alt": "Kit festa com bolo decorado e caixa de docinhos"
+        }
+      ],
+      "soldOut": false
+    },
+    {
+      "id": "kit-brownie",
+      "category": "A surpresa da comemoração",
+      "title": "Kit festa brownie",
+      "description": "Naked brownie de 20 cm acompanhado de 35 docinhos. Uma mesa especial com gostinho de feito em casa.",
+      "tag": "Naked brownie + 35 doces",
+      "options": [
+        {
+          "name": "Docinhos tradicionais",
+          "price": 215
+        },
+        {
+          "name": "Docinhos gourmet",
+          "price": 225
+        }
+      ],
+      "images": [
+        {
+          "src": "products/kit-festa-20cm.jpg",
+          "alt": "Kit festa com naked brownie de 20 cm e docinhos"
+        }
+      ],
+      "soldOut": false
+    }
+  ]
+}

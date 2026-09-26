@@ -1,0 +1,13 @@
+{
+  "name": "Ateliê Doce Sonho",
+  "whatsappNumber": "5521967429120",
+  "instagramUrl": "https://instagram.com/ateliedocesonhorv",
+  "instagramHandle": "@ateliedocesonhorv",
+  "advanceNoticeDays": 7,
+  "depositPercent": 50,
+  "acceptsCard": true,
+  "pickupPolicy": "Retirada no ateliê.",
+  "deliveryPolicy": "Não fazemos entrega própria.",
+  "cancellationNoticeDays": 7,
+  "transportPolicy": "O cliente deve solicitar o Uber Flash; o ateliê não se responsabiliza por problemas ou acidentes durante o transporte."
+}

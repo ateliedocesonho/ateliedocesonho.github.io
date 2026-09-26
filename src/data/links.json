@@ -1,0 +1,18 @@
+[
+  {
+    "id": "delivery",
+    "label": "Pedir delivery",
+    "description": "Pedidos imediados pela plataforma.",
+    "href": "https://instadelivery.com.br/ateliedocesonho",
+    "icon": "shopping-bag",
+    "style": "primary"
+  },
+  {
+    "id": "encomendas",
+    "label": "Fazer uma encomenda",
+    "description": "Bolos, doces e momentos especiais",
+    "href": "#/encomendas",
+    "icon": "gift",
+    "style": "secondary"
+  }
+]
