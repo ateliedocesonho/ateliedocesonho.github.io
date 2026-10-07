@@ -4,6 +4,7 @@ interface FlavorPickerProps {
   flavors: string[]
   value: string[]
   selectionMode: 'single' | 'multiple'
+  maxFlavors?: number
   disabled?: boolean
   onChange: (flavors: string[]) => void
 }
@@ -12,6 +13,7 @@ export function FlavorPicker({
   flavors,
   value,
   selectionMode,
+  maxFlavors,
   disabled = false,
   onChange,
 }: FlavorPickerProps) {
@@ -20,13 +22,16 @@ export function FlavorPicker({
       <legend className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#781f2b]">
         <Heart size={14} fill="currentColor" />
         {selectionMode === 'multiple'
-          ? 'Escolha um ou mais sabores'
+          ? maxFlavors
+            ? `Escolha até ${maxFlavors} sabores`
+            : 'Escolha um ou mais sabores'
           : 'Escolha um sabor'}
       </legend>
       {selectionMode === 'multiple' && (
         <p className="mb-2 text-[11px] leading-relaxed text-[#897774]">
-          Você pode marcar vários. A quantidade de cada sabor é combinada com o
-          ateliê pelo WhatsApp.
+          {maxFlavors
+            ? `Selecione no máximo ${maxFlavors} sabores. A quantidade de cada sabor é combinada com o ateliê pelo WhatsApp.`
+            : 'Você pode marcar vários. A quantidade de cada sabor é combinada com o ateliê pelo WhatsApp.'}
         </p>
       )}
       <div
@@ -35,6 +40,12 @@ export function FlavorPicker({
       >
         {flavors.map((flavor) => {
           const selected = value.includes(flavor)
+          const limitReached = Boolean(
+            selectionMode === 'multiple' &&
+              maxFlavors &&
+              value.length >= maxFlavors &&
+              !selected,
+          )
 
           return (
             <button
@@ -42,7 +53,7 @@ export function FlavorPicker({
               type="button"
               role={selectionMode === 'multiple' ? 'checkbox' : 'radio'}
               aria-checked={selected}
-              disabled={disabled}
+              disabled={disabled || limitReached}
               onClick={() => {
                 if (selectionMode === 'single') {
                   onChange([flavor])
@@ -53,6 +64,7 @@ export function FlavorPicker({
                 if (selected) {
                   selectedFlavors.delete(flavor)
                 } else {
+                  if (maxFlavors && value.length >= maxFlavors) return
                   selectedFlavors.add(flavor)
                 }
 

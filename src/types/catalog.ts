@@ -1,6 +1,7 @@
 export interface PriceOption {
   name: string
   price: number | null
+  maxFlavors?: number
 }
 
 export interface ProductPhoto {

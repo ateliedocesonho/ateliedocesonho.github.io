@@ -1,26 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
   Clock3,
   MapPin,
   Send,
+  ShoppingCart,
   Sparkles,
+  Trash2,
   X,
 } from 'lucide-react'
 import { formatDate, formatPrice } from '../../lib/format'
 import type { OrderLine, Product, StoreSettings } from '../../types/catalog'
 import { Toast } from '../Toast'
-import { ChoicePicker, type Choice } from './ChoicePicker'
+import { ChoicePicker } from './ChoicePicker'
 import { DateTimePicker } from './DateTimePicker'
 import { FlavorPicker } from './FlavorPicker'
-import { QuantityPicker } from './QuantityPicker'
 
 interface OrderModalProps {
-  products: Product[]
   initialProduct: Product
   initialFlavors?: string[]
+  lines: OrderLine[]
+  onLinesChange: (lines: OrderLine[]) => void
+  onAddToCart: () => void
+  cartView?: boolean
   store: StoreSettings
   onClose: () => void
 }
@@ -32,18 +35,18 @@ const stepTitles = [
 ]
 
 export function OrderModal({
-  products,
   initialProduct,
   initialFlavors,
+  lines,
+  onLinesChange,
+  onAddToCart,
+  cartView = false,
   store,
   onClose,
 }: OrderModalProps) {
   const [step, setStep] = useState(1)
-  const [openPicker, setOpenPicker] = useState<'product' | 'option' | null>(
-    null,
-  )
-  const [lines, setLines] = useState<OrderLine[]>([])
-  const [productId, setProductId] = useState(initialProduct.id)
+  const [openPicker, setOpenPicker] = useState<'option' | null>(null)
+  const product = initialProduct
   const [optionName, setOptionName] = useState(
     initialProduct.options[0]?.name ?? '',
   )
@@ -51,7 +54,6 @@ export function OrderModal({
     initialFlavors ??
       (initialProduct.flavors?.[0] ? [initialProduct.flavors[0]] : []),
   )
-  const [quantity, setQuantity] = useState(1)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [toast, setToast] = useState<{
@@ -59,9 +61,6 @@ export function OrderModal({
     variant: 'error' | 'success'
   } | null>(null)
   const dialogRef = useRef<HTMLElement>(null)
-  const setProductPickerOpen = useCallback((open: boolean) => {
-    setOpenPicker(open ? 'product' : null)
-  }, [])
   const setOptionPickerOpen = useCallback((open: boolean) => {
     setOpenPicker(open ? 'option' : null)
   }, [])
@@ -72,10 +71,6 @@ export function OrderModal({
     return () => window.clearTimeout(timeoutId)
   }, [toast])
 
-  const product = useMemo(
-    () => products.find((item) => item.id === productId) ?? initialProduct,
-    [initialProduct, productId, products],
-  )
   const option =
     product.options.find((item) => item.name === optionName) ??
     product.options[0]
@@ -85,15 +80,7 @@ export function OrderModal({
     .toISOString()
     .slice(0, 10)
 
-  const productChoices: Choice[] = products.map((item) => ({
-    id: item.id,
-    label: item.title,
-    description: item.soldOut
-      ? 'Esgotado no momento'
-      : `A partir de ${formatPrice(item.options[0]?.price ?? null)}`,
-    disabled: item.soldOut,
-  }))
-  const optionChoices: Choice[] = product.options.map((item) => ({
+  const optionChoices = product.options.map((item) => ({
     id: item.name,
     label: item.name,
     description: formatPrice(item.price),
@@ -139,16 +126,6 @@ export function OrderModal({
     }
   }, [onClose])
 
-  function changeProduct(nextId: string) {
-    const nextProduct = products.find((item) => item.id === nextId)
-    if (!nextProduct) return
-
-    setProductId(nextId)
-    setOptionName(nextProduct.options[0]?.name ?? '')
-    setSelectedFlavors(nextProduct.flavors?.[0] ? [nextProduct.flavors[0]] : [])
-    setToast(null)
-  }
-
   function getCurrentLine(): OrderLine | null {
     if (product.soldOut) {
       setToast({
@@ -171,42 +148,45 @@ export function OrderModal({
       })
       return null
     }
+    if (
+      option.maxFlavors &&
+      selectedFlavors.length > option.maxFlavors
+    ) {
+      setToast({
+        message: `Escolha no máximo ${option.maxFlavors} sabores para esta opção.`,
+        variant: 'error',
+      })
+      return null
+    }
 
-    return { product, option, flavors: selectedFlavors, quantity }
+    return { product, option, flavors: selectedFlavors, quantity: 1 }
   }
 
-  function addLine() {
-    const lineToAdd = getCurrentLine()
-    if (!lineToAdd) return
-
-    setLines((currentLines) => {
-      const matchingLine = currentLines.findIndex(
+  function addLine(lineToAdd: OrderLine) {
+    const matchingLine = lines.findIndex(
         (line) =>
           line.product.id === lineToAdd.product.id &&
           line.option.name === lineToAdd.option.name &&
           line.flavors.join('|') === lineToAdd.flavors.join('|'),
-      )
-
-      if (matchingLine === -1) {
-        return [...currentLines, lineToAdd]
-      }
-
-      return currentLines.map((line, index) =>
-        index === matchingLine
+    )
+    const nextLines = matchingLine === -1
+      ? [...lines, lineToAdd]
+      : lines.map((line, index) => index === matchingLine
           ? { ...line, quantity: line.quantity + lineToAdd.quantity }
-          : line,
-      )
-    })
-    setToast({
-      message: `${lineToAdd.quantity} item(ns) adicionado(s) à encomenda.`,
-      variant: 'success',
-    })
+          : line)
+    onLinesChange(nextLines)
+  }
+
+  function addCurrentToCart() {
+    const selectedLine = getCurrentLine()
+    if (!selectedLine) return
+    addLine(selectedLine)
+    onAddToCart()
+    onClose()
   }
 
   function removeLine(indexToRemove: number) {
-    setLines((currentLines) =>
-      currentLines.filter((_, index) => index !== indexToRemove),
-    )
+    onLinesChange(lines.filter((_, index) => index !== indexToRemove))
   }
 
   function lineTotal(line: OrderLine) {
@@ -220,10 +200,14 @@ export function OrderModal({
   }, 0)
 
   function continueStep() {
-    if (step === 1 && lines.length === 0) {
+    if (step === 1 && cartView && lines.length === 0) {
+      setToast({ message: 'Seu carrinho está vazio.', variant: 'error' })
+      return
+    }
+    if (step === 1 && !cartView) {
       const selectedLine = getCurrentLine()
       if (!selectedLine) return
-      setLines([selectedLine])
+      addLine(selectedLine)
     }
     if (step === 2 && (!date || !time)) {
       setToast({
@@ -298,7 +282,7 @@ export function OrderModal({
                 id="order-title"
                 className="serif mt-1 text-[25px] text-[#541720]"
               >
-                {stepTitles[step - 1]}
+                {cartView && step === 1 ? 'Seu carrinho' : stepTitles[step - 1]}
               </h2>
             </div>
             <button
@@ -325,110 +309,135 @@ export function OrderModal({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-7">
           {step === 1 && (
             <div className="space-y-4">
-              <ChoicePicker
-                label="Escolha o doce"
-                value={productId}
-                choices={productChoices}
-                open={openPicker === 'product'}
-                onOpenChange={setProductPickerOpen}
-                onChange={changeProduct}
-              />
-
-              <ChoicePicker
-                label="Tamanho ou apresentação"
-                value={optionName}
-                choices={optionChoices}
-                open={openPicker === 'option'}
-                onOpenChange={setOptionPickerOpen}
-                onChange={(nextOption) => {
-                  setOptionName(nextOption)
-                  setToast(null)
-                }}
-              />
-
-              {product.flavors && (
-                <FlavorPicker
-                  flavors={product.flavors}
-                  value={selectedFlavors}
-                  selectionMode={product.flavorSelection ?? 'single'}
-                  disabled={product.soldOut}
-                  onChange={(nextFlavors) => {
-                    setSelectedFlavors(nextFlavors)
-                    setToast(null)
-                  }}
-                />
-              )}
-
-              <QuantityPicker
-                value={quantity}
-                onChange={(nextQuantity) => {
-                  setQuantity(nextQuantity)
-                  setToast(null)
-                }}
-              />
-
-              {product.soldOut && (
-                <p className="rounded-xl bg-[#fae8e6] px-3.5 py-3 text-xs font-semibold text-[#9a3035]">
-                  Este produto está esgotado no momento. Escolha outro doce da
-                  lista para continuar.
-                </p>
-              )}
-
-              <button
-                type="button"
-                disabled={product.soldOut}
-                onClick={addLine}
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#ba7e7f] py-3 text-sm font-bold text-[#781f2b] transition hover:bg-[#f8efec] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Check size={17} /> Adicionar à encomenda
-                <span className="font-medium text-[#9b8480]">
-                  · {formatPrice(option?.price ?? null)}
-                </span>
-              </button>
-              {lines.length > 0 && (
-                <div className="space-y-2 rounded-xl bg-[#f2e9e0] p-3.5">
-                  <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#8b6f68]">
-                    Na sua encomenda · {lines.length} item(ns)
+              {!cartView && (
+                <>
+                  <p className="rounded-xl bg-[#f2e9e0] px-3.5 py-3 text-sm font-semibold text-[#541720]">
+                    {product.title}
                   </p>
-                  {lines.map((line, index) => (
-                    <div
-                      key={`${line.product.id}-${line.option.name}-${line.flavors.join('|')}`}
-                      className="flex items-center justify-between gap-2 text-xs"
-                    >
-                      <span className="min-w-0 truncate text-[#654f4a]">
-                        {line.quantity} × {line.product.title} ·{' '}
-                        {line.option.name}
-                        {line.flavors.length > 0 &&
-                          ` · Sabores: ${line.flavors.join(', ')}`}
-                      </span>
-                      <span className="shrink-0 font-semibold text-[#781f2b]">
-                        {lineTotal(line)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeLine(index)}
-                        aria-label={`Remover ${line.product.title}`}
-                        className="shrink-0 p-1 text-[#a7807c]"
+
+                  <ChoicePicker
+                    label="Tamanho ou apresentação"
+                    value={optionName}
+                    choices={optionChoices}
+                    open={openPicker === 'option'}
+                    onOpenChange={setOptionPickerOpen}
+                    onChange={(nextOption) => {
+                      setOptionName(nextOption)
+                      const nextMaxFlavors = product.options.find(
+                        (item) => item.name === nextOption,
+                      )?.maxFlavors
+                      if (nextMaxFlavors) {
+                        setSelectedFlavors((current) =>
+                          current.slice(0, nextMaxFlavors),
+                        )
+                      }
+                      setToast(null)
+                    }}
+                  />
+
+                  {product.flavors && (
+                    <FlavorPicker
+                      flavors={product.flavors}
+                      value={selectedFlavors}
+                      selectionMode={product.flavorSelection ?? 'single'}
+                      maxFlavors={option?.maxFlavors}
+                      disabled={product.soldOut}
+                      onChange={(nextFlavors) => {
+                        setSelectedFlavors(nextFlavors)
+                        setToast(null)
+                      }}
+                    />
+                  )}
+
+                  {product.soldOut && (
+                    <p className="rounded-xl bg-[#fae8e6] px-3.5 py-3 text-xs font-semibold text-[#9a3035]">
+                      Este produto está esgotado no momento.
+                    </p>
+                  )}
+                </>
+              )}
+
+              {cartView && lines.length > 0 && (
+                <div className="space-y-3 rounded-2xl border border-[#eaded4] bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-bold text-[#541720]">
+                      {cartView ? 'Itens do carrinho' : 'No carrinho'}
+                    </p>
+                    <span className="rounded-full bg-[#f8efec] px-2.5 py-1 text-[11px] font-semibold text-[#781f2b]">
+                      {lines.reduce((count, line) => count + line.quantity, 0)}{' '}
+                      {lines.reduce((count, line) => count + line.quantity, 0) ===
+                      1
+                        ? 'item'
+                        : 'itens'}
+                    </span>
+                  </div>
+                  <div className="divide-y divide-[#f0e7e1]">
+                    {lines.map((line, index) => (
+                      <div
+                        key={`${line.product.id}-${line.option.name}-${line.flavors.join('|')}`}
+                        className="flex items-center justify-between gap-3 py-3 first:pt-1 last:pb-1"
                       >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  <div className="border-t border-[#ddcec4] pt-2 text-right text-xs font-bold text-[#541720]">
-                    Estimativa:{' '}
-                    {total === null ? 'a confirmar' : formatPrice(total)}
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold leading-snug text-[#541720]">
+                            {line.quantity > 1 && `${line.quantity} × `}
+                            {line.product.title}
+                          </span>
+                          <span className="mt-1 block text-xs text-[#806e69]">
+                            {line.option.name}
+                            {line.flavors.length > 0 &&
+                              ` · ${line.flavors.join(', ')}`}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-sm font-bold text-[#781f2b]">
+                          {lineTotal(line)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeLine(index)}
+                          aria-label={`Remover ${line.product.title} do carrinho`}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#a7807c] transition hover:bg-[#fae8e6] hover:text-[#9a3035]"
+                        >
+                          <X size={15} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between border-t border-[#eee3da] pt-3 text-sm">
+                    <span className="font-semibold text-[#654f4a]">Subtotal estimado</span>
+                    <b className="text-[#541720]">
+                      {total === null ? 'a confirmar' : formatPrice(total)}
+                    </b>
                   </div>
                 </div>
               )}
 
-              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#927e78]">
-                <Sparkles
-                  size={13}
-                  className="mt-0.5 shrink-0 text-[#a84d53]"
-                />
-                Você pode adicionar vários produtos. Os sabores são escolhidos
-                separadamente para cada item.
-              </p>
+              {cartView && lines.length > 0 && (
+                <div className="-mt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => onLinesChange([])}
+                    className="flex min-h-8 items-center gap-1.5 rounded-lg px-2 text-[11px] font-medium text-[#927e78] transition hover:bg-[#fae8e6] hover:text-[#9a3035]"
+                  >
+                    <Trash2 size={13} /> Limpar carrinho
+                  </button>
+                </div>
+              )}
+
+              {!cartView && (
+                <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#927e78]">
+                  <Sparkles
+                    size={13}
+                    className="mt-0.5 shrink-0 text-[#a84d53]"
+                  />
+                  Você pode adicionar vários produtos. Os sabores são escolhidos
+                  separadamente para cada item.
+                </p>
+              )}
+              {cartView && lines.length === 0 && (
+                <p className="rounded-xl bg-white p-4 text-sm text-[#806e69]">
+                  Seu carrinho está vazio.
+                </p>
+              )}
             </div>
           )}
 
@@ -517,17 +526,41 @@ export function OrderModal({
                 <ArrowLeft size={15} /> Voltar
               </button>
             )}
-            {step < 3 ? (
+            {step === 1 && cartView && lines.length === 0 ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#781f2b] text-sm font-semibold text-white shadow-sm"
+              >
+                Continuar comprando
+              </button>
+            ) : step === 1 ? (
+              <>
+                {!cartView && (
+                  <button
+                    type="button"
+                    disabled={product.soldOut}
+                    onClick={addCurrentToCart}
+                    className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-[#ba7e7f] bg-white text-sm font-semibold text-[#781f2b] disabled:opacity-50"
+                  >
+                    <ShoppingCart size={15} /> Adicionar ao carrinho
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={continueStep}
+                  className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#781f2b] text-sm font-semibold text-white shadow-sm"
+                >
+                  Finalizar pedido <ArrowRight size={16} />
+                </button>
+              </>
+            ) : step < 3 ? (
               <button
                 type="button"
                 onClick={continueStep}
                 className="flex min-h-12 flex-[2] items-center justify-center gap-2 rounded-full bg-[#781f2b] text-sm font-semibold text-white shadow-sm"
               >
-                {step === 1
-                  ? lines.length === 0
-                    ? 'Continuar com este produto'
-                    : 'Escolher retirada'
-                  : 'Revisar encomenda'}
+                Revisar encomenda
                 <ArrowRight size={16} />
               </button>
             ) : (

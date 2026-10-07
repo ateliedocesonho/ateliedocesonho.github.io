@@ -12,15 +12,18 @@
       "options": [
         {
           "name": "35 unidades",
-          "price": 50
+          "price": 50,
+          "maxFlavors": 6
         },
         {
           "name": "70 unidades",
-          "price": 100
+          "price": 100,
+          "maxFlavors": 6
         },
         {
           "name": "100 unidades",
-          "price": 120
+          "price": 120,
+          "maxFlavors": 6
         }
       ],
       "flavors": [
@@ -49,15 +52,18 @@
       "options": [
         {
           "name": "35 unidades",
-          "price": 63
+          "price": 63,
+          "maxFlavors": 6
         },
         {
           "name": "70 unidades",
-          "price": 120
+          "price": 120,
+          "maxFlavors": 6
         },
         {
           "name": "100 unidades",
-          "price": 170
+          "price": 170,
+          "maxFlavors": 6
         }
       ],
       "flavors": [
@@ -86,15 +92,18 @@
       "options": [
         {
           "name": "35 unidades",
-          "price": 70
+          "price": 70,
+          "maxFlavors": 3
         },
         {
           "name": "70 unidades",
-          "price": 140
+          "price": 140,
+          "maxFlavors": 3
         },
         {
           "name": "100 unidades",
-          "price": 180
+          "price": 180,
+          "maxFlavors": 3
         }
       ],
       "flavors": ["Brigadeiro", "Ninho", "Doce de leite"],
@@ -236,11 +245,13 @@
       "options": [
         {
           "name": "Unidade",
-          "price": 4.5
+          "price": 4.5,
+          "maxFlavors": 3
         },
         {
           "name": "Cento",
-          "price": 420
+          "price": 420,
+          "maxFlavors": 3
         }
       ],
       "flavors": ["Brigadeiro", "Ninho", "Doce de leite"],
