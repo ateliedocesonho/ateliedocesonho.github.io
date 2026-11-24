@@ -541,9 +541,10 @@ export function OrderModal({
                     type="button"
                     disabled={product.soldOut}
                     onClick={addCurrentToCart}
-                    className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-[#ba7e7f] bg-white text-sm font-semibold text-[#781f2b] disabled:opacity-50"
+                    className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-[#ba7e7f] bg-white px-2 text-center text-sm font-semibold leading-tight text-[#781f2b] disabled:opacity-50 sm:px-4"
                   >
-                    <ShoppingCart size={15} /> Adicionar ao carrinho
+                    <ShoppingCart size={15} className="shrink-0" />
+                    <span className="w-[6.5rem] shrink-0">Adicionar ao carrinho</span>
                   </button>
                 )}
                 <button
