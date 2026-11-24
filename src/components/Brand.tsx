@@ -6,7 +6,7 @@ export function Brand({ small = false }: BrandProps) {
   return (
     <div className="flex items-center gap-2.5">
       <img
-        src={`${import.meta.env.BASE_URL}inspiration/logo.jpg`}
+        src={`${import.meta.env.BASE_URL}logo.jpg`}
         className={`${small ? 'h-10 w-10' : 'h-14 w-14'} rounded-full border border-[#eaded4] object-cover`}
         alt=""
       />

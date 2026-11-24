@@ -28,7 +28,7 @@ export function HomePage() {
       <div className="relative z-10 flex w-full max-w-sm flex-1 flex-col items-center">
         <div className="mt-4 rounded-full border border-[#eaded4] bg-white/80 p-1 shadow-sm">
           <img
-            src={`${import.meta.env.BASE_URL}inspiration/logo.jpg`}
+            src={`${import.meta.env.BASE_URL}logo.jpg`}
             className="h-28 w-28 rounded-full object-cover"
             alt="Logo do Ateliê Doce Sonho"
           />
