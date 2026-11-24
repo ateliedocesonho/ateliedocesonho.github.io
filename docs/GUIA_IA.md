@@ -25,6 +25,9 @@ fornecidas pela loja.
   backend, estoque central, cálculo de frete nem processamento de pagamento.
 - A hospedagem prevista é GitHub Pages. Preserve rotas hash e o `base: './'` do
   Vite.
+- Existe um painel estático em `/admin/` para editar `encomendas.json` sem
+  backend: ele usa a API do GitHub com um token guardado no navegador e faz
+  commit na branch `main`. Nunca coloque esse token no repositório.
 
 ## Estrutura
 
@@ -42,7 +45,13 @@ src/
   router/          Rotas centralizadas em AppRouter.tsx
   types/           Modelos TypeScript compartilhados
   main.tsx         HashRouter e ponto de entrada do React
+tools/
+  catalog-editor/  Painel estático de edição do catálogo (HTML/CSS/JS puro)
 ```
+
+O painel é copiado para `public/admin/` pelos scripts `predev`/`prebuild`;
+`public/admin/` é gerado e está no `.gitignore`. Não edite a cópia gerada —
+mude sempre os arquivos de `tools/catalog-editor/`.
 
 Não reúna componentes de páginas e fluxos diferentes em `App.tsx`. Coloque
 componentes reutilizáveis em `components/` e cada tela em `pages/`.
@@ -134,15 +143,17 @@ Cada catálogo é um objeto com `id`, `title`, `subtitle` e uma lista
 
 `components/order/OrderModal.tsx` contém as três etapas: itens, data e horário,
 e confirmação. `ChoicePicker.tsx` substitui os selects nativos por uma lista de
-botões utilizável em telas touch. `DateTimePicker.tsx` mostra um campo para data
-e outro para horário; cada campo abre suas opções ao toque e fecha após a
-seleção. Mantenha essa interação direta e sem telas intermediárias. `FlavorPicker.tsx`
-mantém os sabores fáceis de comparar. Preserve validação, resumo, quantidade,
-estado de esgotado e mensagem estruturada para WhatsApp ao alterar o fluxo.
+botões utilizável em telas touch. `DateTimePicker.tsx` usa o date picker do
+shadcn/ui (`Popover` + `Calendar` em `components/ui/`) para a data e o `Select`
+do shadcn/ui para o horário. A data abre em popover e o horário em lista
+suspensa; ambos fecham após a seleção. Mantenha essa interação direta e sem
+telas intermediárias. `FlavorPicker.tsx` mantém os sabores fáceis de comparar.
+Preserve validação, resumo, quantidade, estado de esgotado e mensagem
+estruturada para WhatsApp ao alterar o fluxo.
 Na etapa final, mostre apenas a revisão do pedido e o botão de envio pelo
 WhatsApp; não solicite nome nem observações adicionais.
-O calendário e a lista de horários abrem em modais próprios. Os horários
-disponíveis vão de 07:00 a 22:00, em intervalos de 30 minutos.
+Os horários disponíveis vão de 07:00 a 22:00, em intervalos de 30 minutos.
+Datas anteriores ao dia atual ficam desabilitadas no calendário.
 
 O site apenas abre o WhatsApp com o pedido preenchido. O cliente envia a
 mensagem e o ateliê confirma disponibilidade, retirada e pagamento.
@@ -158,8 +169,27 @@ mensagem e o ateliê confirma disponibilidade, retirada e pagamento.
   claro para esgotado e suporte a movimento reduzido.
 - Se substituir as fotos ilustrativas geradas, preserve os caminhos JSON ou
   atualize `images` junto com os arquivos.
-- Não instale uma biblioteca de componentes para substituir um componente
-  pequeno e específico sem necessidade real.
+- Prefira os componentes shadcn/ui já instalados em `components/ui/` ao criar
+  controles de data e seleção; não adicione bibliotecas sem necessidade real.
+
+## Painel de administração
+
+`docs/PAINEL_ADMIN.md` é o guia da pessoa que edita o catálogo. O painel roda
+em `/admin/`, fora do app React, e usa as seguintes regras duradouras:
+
+- Formulários em português simples, com um cartão por produto e ações óbvias
+  (editar, subir/descer, duplicar, excluir); a pessoa leiga nunca precisa ler
+  ou escrever JSON.
+- O token do GitHub (fine-grained, apenas `Contents: read and write` neste
+  repositório) vive somente no `localStorage` do navegador. Nunca grave token
+  em arquivo, log ou mensagem de commit.
+- A edição é um rascunho local: só o botão **Publicar alterações** faz commit
+  via Contents API. Depois o workflow de Pages reconstrói o site. Fotos são
+  enviadas para `public/products/` em commit separado.
+- Preserve os campos aceitos por `src/types/catalog.ts` e as validações do
+  painel (ids únicos em slug, preço `null` para sob consulta, `alt` nas fotos,
+  ordem dos produtos). Mantenha `soldOut` e `flavorSelection` nos produtos que
+  precisam deles.
 
 ## Formatação, build e deploy
 

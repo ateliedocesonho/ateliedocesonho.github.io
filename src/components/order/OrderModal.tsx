@@ -72,11 +72,10 @@ export function OrderModal({
   }, [toast])
 
   const option =
-    product.options.find((item) => item.name === optionName) ??
-    product.options[0]
-  const minimumDate = new Date(
-    Date.now() - new Date().getTimezoneOffset() * 60_000,
-  )
+    product.options.find((item) => item.name === optionName) ?? product.options[0]
+
+  const now = new Date();
+  const minimumDate = new Date(now.setDate(now.getDate() + store.advanceNoticeDays))
     .toISOString()
     .slice(0, 10)
 
@@ -98,8 +97,19 @@ export function OrderModal({
       ?.focus()
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
-      if (event.key !== 'Tab' || !dialogRef.current) return
+      const activeElement = document.activeElement
+      const focusIsInPopup =
+        activeElement instanceof HTMLElement &&
+        activeElement.closest(
+          '[data-slot="popover-content"], [data-slot="select-content"]',
+        ) !== null
+      const popupIsOpen =
+        document.querySelector(
+          '[data-slot="popover-content"], [data-slot="select-content"]',
+        ) !== null
+
+      if (event.key === 'Escape' && !popupIsOpen) onClose()
+      if (event.key !== 'Tab' || focusIsInPopup || !dialogRef.current) return
 
       const focusableElements = Array.from(
         dialogRef.current.querySelectorAll<HTMLElement>(
@@ -148,10 +158,7 @@ export function OrderModal({
       })
       return null
     }
-    if (
-      option.maxFlavors &&
-      selectedFlavors.length > option.maxFlavors
-    ) {
+    if (option.maxFlavors && selectedFlavors.length > option.maxFlavors) {
       setToast({
         message: `Escolha no máximo ${option.maxFlavors} sabores para esta opção.`,
         variant: 'error',
@@ -164,16 +171,19 @@ export function OrderModal({
 
   function addLine(lineToAdd: OrderLine) {
     const matchingLine = lines.findIndex(
-        (line) =>
-          line.product.id === lineToAdd.product.id &&
-          line.option.name === lineToAdd.option.name &&
-          line.flavors.join('|') === lineToAdd.flavors.join('|'),
+      (line) =>
+        line.product.id === lineToAdd.product.id &&
+        line.option.name === lineToAdd.option.name &&
+        line.flavors.join('|') === lineToAdd.flavors.join('|'),
     )
-    const nextLines = matchingLine === -1
-      ? [...lines, lineToAdd]
-      : lines.map((line, index) => index === matchingLine
-          ? { ...line, quantity: line.quantity + lineToAdd.quantity }
-          : line)
+    const nextLines =
+      matchingLine === -1
+        ? [...lines, lineToAdd]
+        : lines.map((line, index) =>
+            index === matchingLine
+              ? { ...line, quantity: line.quantity + lineToAdd.quantity }
+              : line,
+          )
     onLinesChange(nextLines)
   }
 
@@ -365,8 +375,10 @@ export function OrderModal({
                     </p>
                     <span className="rounded-full bg-[#f8efec] px-2.5 py-1 text-[11px] font-semibold text-[#781f2b]">
                       {lines.reduce((count, line) => count + line.quantity, 0)}{' '}
-                      {lines.reduce((count, line) => count + line.quantity, 0) ===
-                      1
+                      {lines.reduce(
+                        (count, line) => count + line.quantity,
+                        0,
+                      ) === 1
                         ? 'item'
                         : 'itens'}
                     </span>
@@ -403,7 +415,9 @@ export function OrderModal({
                     ))}
                   </div>
                   <div className="flex items-center justify-between border-t border-[#eee3da] pt-3 text-sm">
-                    <span className="font-semibold text-[#654f4a]">Subtotal estimado</span>
+                    <span className="font-semibold text-[#654f4a]">
+                      Subtotal estimado
+                    </span>
                     <b className="text-[#541720]">
                       {total === null ? 'a confirmar' : formatPrice(total)}
                     </b>
@@ -544,7 +558,9 @@ export function OrderModal({
                     className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-[#ba7e7f] bg-white px-2 text-center text-sm font-semibold leading-tight text-[#781f2b] disabled:opacity-50 sm:px-4"
                   >
                     <ShoppingCart size={15} className="shrink-0" />
-                    <span className="w-[6.5rem] shrink-0">Adicionar ao carrinho</span>
+                    <span className="w-[6.5rem] shrink-0">
+                      Adicionar ao carrinho
+                    </span>
                   </button>
                 )}
                 <button
