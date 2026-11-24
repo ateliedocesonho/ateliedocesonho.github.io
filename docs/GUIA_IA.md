@@ -25,42 +25,43 @@ fornecidas pela loja.
   backend, estoque central, cálculo de frete nem processamento de pagamento.
 - A hospedagem prevista é GitHub Pages. Preserve rotas hash e o `base: './'` do
   Vite.
-- Existe um painel estático em `/admin/` para editar `encomendas.json` sem
-  backend: ele usa a API do GitHub com um token guardado no navegador e faz
-  commit na branch `main`. Nunca coloque esse token no repositório.
+- Existe um painel em React/Tailwind na rota `#/admin` para editar
+  `encomendas.json` sem backend: ele usa a API do GitHub com um token guardado no
+  navegador e escreve apenas na branch de dados `database`, criada como órfã
+  (sem copiar a `main`) e contendo só `catalogs/encomendas.json` e `products/*`.
+  O site lê o catálogo e as fotos dessa branch em runtime, com fallback para os
+  arquivos publicados. `main` (código) e `gh-pages` (deploy) não são tocados pelo
+  painel. Nunca coloque o token no repositório.
 
 ## Estrutura
 
 ```text
 src/
   components/
+    admin/         Formulários do painel (produto, fotos, token, estilos)
     catalog/       Galeria, cartões de produto, slideshow e orientação de rolagem
     order/         Modal de pedido, seletores, sabores e quantidade
   data/
     catalogs/      Um arquivo JSON por catálogo
     links.json     Botões da página inicial
     store.json     WhatsApp, Instagram e condições gerais da loja
-  lib/             Formatação e carregamento de catálogos JSON
-  pages/           Home, catálogo reutilizável e estado de catálogo não encontrado
+  lib/             API do GitHub, validação e carregamento de catálogos JSON
+  pages/           Home, catálogo, painel admin e estado de catálogo não encontrado
   router/          Rotas centralizadas em AppRouter.tsx
   types/           Modelos TypeScript compartilhados
   main.tsx         HashRouter e ponto de entrada do React
-tools/
-  catalog-editor/  Painel estático de edição do catálogo (HTML/CSS/JS puro)
 ```
-
-O painel é copiado para `public/admin/` pelos scripts `predev`/`prebuild`;
-`public/admin/` é gerado e está no `.gitignore`. Não edite a cópia gerada —
-mude sempre os arquivos de `tools/catalog-editor/`.
 
 Não reúna componentes de páginas e fluxos diferentes em `App.tsx`. Coloque
 componentes reutilizáveis em `components/` e cada tela em `pages/`.
 
 ## Rotas e novos catálogos
 
-`src/router/AppRouter.tsx` declara `#/` para a página inicial, `#/encomendas` para
-o catálogo regular e `#/catalogos/:catalogId` para os catálogos especiais. O
-carregador em `src/lib/catalogs.ts` importa os JSON de `src/data/catalogs/`.
+`src/router/AppRouter.tsx` declara `#/` para a página inicial, `#/encomendas`
+para o catálogo regular, `#/catalogos/:catalogId` para os catálogos especiais e
+`#/admin` para o painel. O carregador em `src/lib/catalogs.ts` tenta primeiro a
+versão publicada na branch `database` e usa o JSON importado de
+`src/data/catalogs/` como reserva.
 
 Para criar um catálogo sazonal:
 
@@ -175,7 +176,7 @@ mensagem e o ateliê confirma disponibilidade, retirada e pagamento.
 ## Painel de administração
 
 `docs/PAINEL_ADMIN.md` é o guia da pessoa que edita o catálogo. O painel roda
-em `/admin/`, fora do app React, e usa as seguintes regras duradouras:
+dentro do app React em `#/admin` e usa as seguintes regras duradouras:
 
 - Formulários em português simples, com um cartão por produto e ações óbvias
   (editar, subir/descer, duplicar, excluir); a pessoa leiga nunca precisa ler
@@ -183,9 +184,18 @@ em `/admin/`, fora do app React, e usa as seguintes regras duradouras:
 - O token do GitHub (fine-grained, apenas `Contents: read and write` neste
   repositório) vive somente no `localStorage` do navegador. Nunca grave token
   em arquivo, log ou mensagem de commit.
-- A edição é um rascunho local: só o botão **Publicar alterações** faz commit
-  via Contents API. Depois o workflow de Pages reconstrói o site. Fotos são
-  enviadas para `public/products/` em commit separado.
+- A edição é um rascunho local: só o botão **Publicar alterações** faz commit via
+  Contents API na branch `database` (`catalogs/encomendas.json` e fotos em
+  `products/`). O site lê esses arquivos em runtime (`fetchCatalog` e
+  `CatalogImage`), sem rebuild. Fotos escolhidas no formulário **não** são
+  enviadas antes do publish, e o nome do arquivo é editável pela pessoa.
+- `main` e `gh-pages` nunca são tocados pelo painel: alterações estruturais e
+  deploy não apagam as edições. Se precisar replicar algo manualmente no catálogo
+  editável, faça isso direto na branch `database`.
+- `ensureDataBranch()` cria a `database` com um único commit sem pais, cuja
+  árvore contém só `catalogs/encomendas.json` (a API rejeita uma árvore vazia).
+  Não espelhe a `main` nessa branch: fotos antigas e código já vêm do site
+  publicado.
 - Preserve os campos aceitos por `src/types/catalog.ts` e as validações do
   painel (ids únicos em slug, preço `null` para sob consulta, `alt` nas fotos,
   ordem dos produtos). Mantenha `soldOut` e `flavorSelection` nos produtos que
@@ -197,7 +207,7 @@ em `/admin/`, fora do app React, e usa as seguintes regras duradouras:
 - `npm run build` roda TypeScript e cria `dist/` para publicação.
 - `.github/workflows/deploy.yml` publica no GitHub Pages ao receber push na
   branch `main` (Pages deve usar GitHub Actions).
-- `npm run deploy` é a alternativa manual com `gh-pages`; depende de remoto Git
-  configurado e publica `dist` na branch `gh-pages`.
+- `npm run deploy` publica `dist` na branch `gh-pages` com `gh-pages -d dist`.
+  Isso não afeta a branch `database`, onde estão as edições do painel.
 - Mantenha `base: './'`, `HashRouter` e os caminhos de imagens relativos para
   que o app funcione em repositórios de projeto no GitHub Pages.

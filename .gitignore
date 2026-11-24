@@ -1,6 +1,5 @@
 node_modules
 dist
-public/admin
 *.local
 .DS_Store
 *.tsbuildinfo

@@ -6,19 +6,29 @@ import { CatalogEndSlide } from '../components/catalog/CatalogEndSlide'
 import { PhotoSlideshow } from '../components/catalog/PhotoSlideshow'
 import { ProductSlide } from '../components/catalog/ProductSlide'
 import { SiteHeader } from '../components/SiteHeader'
-import { getCatalog } from '../lib/catalogs'
-import type { OrderLine, Product, StoreSettings } from '../types/catalog'
+import { fetchCatalog, getCatalog } from '../lib/catalogs'
+import type {
+  OrderLine,
+  Product,
+  ProductCatalog,
+  StoreSettings,
+} from '../types/catalog'
 import { CatalogNotFoundPage } from './CatalogNotFoundPage'
 
 interface CatalogPageProps {
   catalogId?: string
 }
 
-function readCart(catalogId: string | undefined, products: Product[]): OrderLine[] {
+function readCart(
+  catalogId: string | undefined,
+  products: Product[],
+): OrderLine[] {
   if (!catalogId) return []
 
   try {
-    const saved = window.localStorage.getItem(`ateliedocesonho:cart:${catalogId}`)
+    const saved = window.localStorage.getItem(
+      `ateliedocesonho:cart:${catalogId}`,
+    )
     if (!saved) return []
 
     const parsed: unknown = JSON.parse(saved)
@@ -37,23 +47,34 @@ function readCart(catalogId: string | undefined, products: Product[]): OrderLine
       const product = products.find((item) => item.id === productId)
       const option = product?.options.find((item) => item.name === optionName)
       const quantity = savedLine.quantity
-      if (!product || !option || typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity < 1) {
+      if (
+        !product ||
+        !option ||
+        typeof quantity !== 'number' ||
+        !Number.isInteger(quantity) ||
+        quantity < 1
+      ) {
         return []
       }
 
       const flavors = Array.isArray(savedLine.flavors)
         ? savedLine.flavors.filter(
             (flavor): flavor is string =>
-              typeof flavor === 'string' && (product.flavors ?? []).includes(flavor),
+              typeof flavor === 'string' &&
+              (product.flavors ?? []).includes(flavor),
           )
         : []
 
-      return [{
-        product,
-        option,
-        flavors: option.maxFlavors ? flavors.slice(0, option.maxFlavors) : flavors,
-        quantity,
-      }]
+      return [
+        {
+          product,
+          option,
+          flavors: option.maxFlavors
+            ? flavors.slice(0, option.maxFlavors)
+            : flavors,
+          quantity,
+        },
+      ]
     })
   } catch {
     return []
@@ -63,7 +84,26 @@ function readCart(catalogId: string | undefined, products: Product[]): OrderLine
 export function CatalogPage({ catalogId: requestedCatalog }: CatalogPageProps) {
   const { catalogId: routeCatalog } = useParams()
   const catalogId = requestedCatalog ?? routeCatalog
-  const catalog = catalogId ? getCatalog(catalogId) : undefined
+  const bundledCatalog = catalogId ? getCatalog(catalogId) : undefined
+  const [remoteCatalog, setRemoteCatalog] = useState<ProductCatalog>()
+
+  useEffect(() => {
+    let active = true
+    setRemoteCatalog(undefined)
+    if (!catalogId)
+      return () => {
+        active = false
+      }
+
+    fetchCatalog(catalogId).then((data) => {
+      if (active) setRemoteCatalog(data)
+    })
+    return () => {
+      active = false
+    }
+  }, [catalogId])
+
+  const catalog = remoteCatalog ?? bundledCatalog
   const products = useMemo(() => catalog?.products ?? [], [catalog])
   const scrollContainerRef = useRef<HTMLElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)

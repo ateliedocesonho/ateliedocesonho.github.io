@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Maximize2 } from 'lucide-react'
 import type { ProductPhoto } from '../../types/catalog'
+import { CatalogImage } from './CatalogImage'
 
 interface ProductGalleryProps {
   productId: string
@@ -53,8 +54,8 @@ export function ProductGallery({
             aria-label={`Ampliar foto ${index + 1} de ${title}`}
             className="relative h-full w-full shrink-0 snap-center overflow-hidden text-left"
           >
-            <img
-              src={`${import.meta.env.BASE_URL}${photo.src}`}
+            <CatalogImage
+              src={photo.src}
               alt={photo.alt}
               className="h-full w-full object-cover object-center"
               loading={prioritizeFirstImage && index === 0 ? 'eager' : 'lazy'}

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { ArrowLeft, ArrowRight, X } from 'lucide-react'
 import type { ProductPhoto } from '../../types/catalog'
+import { CatalogImage } from './CatalogImage'
 
 interface PhotoSlideshowProps {
   photos: ProductPhoto[]
@@ -129,9 +130,9 @@ export function PhotoSlideshow({
           touchStartX.current = null
         }}
       >
-        <img
+        <CatalogImage
           key={photo.src}
-          src={`${import.meta.env.BASE_URL}${photo.src}`}
+          src={photo.src}
           alt={photo.alt}
           className="max-h-[80svh] max-w-full rounded-lg object-contain"
         />

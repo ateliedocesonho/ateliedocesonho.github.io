@@ -25,10 +25,11 @@ npm run dev
 - Para catálogos sazonais, adicione outro JSON em `src/data/catalogs/` e um botão
   para `#/catalogos/<slug>` em `src/data/links.json`.
 
-Quem não mexe com código pode usar o painel em `/admin/` no site publicado
-(`https://ateliedocesonho.github.io/admin/`). Ele edita o catálogo de
-encomendas pelo navegador e commita no GitHub; veja
-[docs/PAINEL_ADMIN.md](docs/PAINEL_ADMIN.md) para criar o token e usar o painel.
+Quem não mexe com código pode usar o painel em `#/admin` no site publicado
+(`https://ateliedocesonho.github.io/#/admin`). Ele edita o catálogo pelo
+navegador e salva na branch de dados `database`, separada de `main` e
+`gh-pages`. Veja [docs/PAINEL_ADMIN.md](docs/PAINEL_ADMIN.md) para criar o token
+e usar o painel.
 
 Consulte [docs/GUIA_IA.md](docs/GUIA_IA.md) para instruções de manutenção,
 formato completo dos dados, identidade visual e criação de catálogos sazonais.
