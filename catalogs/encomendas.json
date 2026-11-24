@@ -69,15 +69,19 @@
       "flavors": [
         "Morango com Nutella",
         "Ninho com Nutella",
-        "Brigadeiro nobre",
         "Coco queimado",
         "Ferrero Rocher",
-        "Confete"
+        "Confete",
+        "Brigadeiro Nobre"
       ],
       "images": [
         {
           "src": "products/docinhos-gourmet.jpg",
           "alt": "Caixa de docinhos gourmet variados"
+        },
+        {
+          "src": "products/docinhos-gourmet2.jpg",
+          "alt": "Docinhos Gourmet"
         }
       ],
       "soldOut": true,
